@@ -1,0 +1,7 @@
+{
+  "name": "IQRA INSTITUTE",
+  "description": "Professional educational institute platform for Nursery to Class 8 featuring 3-day trial admissions, daily practice questions, fee structure, parent notification email system, and admin management suite.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

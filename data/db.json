@@ -1,0 +1,372 @@
+{
+  "settings": {
+    "instituteName": "IQRA INSTITUTE",
+    "tagline": "Strong Foundations Today, Confident Futures Tomorrow.",
+    "phone": "8882257389",
+    "whatsapp": "7678365870",
+    "address": "25 Futa Road, Budh Vihar, Sector 63, Noida, Uttar Pradesh, Gali No. 23A, Near Gulshan-e-Tayyaba Mosque",
+    "announcement": "Admissions Open for Nursery to Class 8! Join our 3-Day Free Trial Class today.",
+    "announcementActive": true,
+    "email": "abulques263@gmail.com",
+    "timing": "Morning & Evening Batches (Monday to Saturday)",
+    "heroBadge": "Nursery to Class 8 • Foundation Learning Support",
+    "heroDescription": "IQRA INSTITUTE focuses on developing children’s academic foundation, conceptual understanding, discipline, and useful daily study habits from an early age. We believe in understanding concepts rather than rote memorization."
+  },
+  "classes": [
+    {
+      "id": "cls-nursery-ukg",
+      "name": "Nursery – UKG",
+      "gradeRange": "Pre-Primary (Nursery, LKG, UKG)",
+      "monthlyFee": 350,
+      "description": "Early childhood foundation focusing on phonics, letter formation, basic counting, motor skills and joyful learning habits.",
+      "features": [
+        "Alphabet, Phonics & Sound recognition",
+        "Number sense & Basic counting",
+        "Pencil grip, coloring & motor development",
+        "Friendly, patient and caring atmosphere",
+        "Daily 1.5 hours interactive session"
+      ],
+      "order": 1
+    },
+    {
+      "id": "cls-1-4",
+      "name": "Class 1 – 4",
+      "gradeRange": "Primary School (Grades 1 to 4)",
+      "monthlyFee": 300,
+      "description": "Strong foundation in core subjects — Arithmetic, Reading, Writing, Science concepts, and good study discipline.",
+      "features": [
+        "Basic Mathematics (Addition, Subtraction, Multiplication, Division)",
+        "English reading comprehension & handwriting",
+        "Basic Science & Environmental understanding",
+        "Daily homework check & practice worksheets",
+        "Encouraging curiosity and self-confidence"
+      ],
+      "isPopular": true,
+      "order": 2
+    },
+    {
+      "id": "cls-5-6",
+      "name": "Class 5 – 6",
+      "gradeRange": "Upper Primary (Grades 5 & 6)",
+      "monthlyFee": 400,
+      "description": "Transition to structured conceptual learning, problem-solving, English grammar, and systematic subject mastery.",
+      "features": [
+        "Conceptual Mathematics & Word problems",
+        "General Science (Physics, Chemistry, Biology basics)",
+        "Social Studies & Map concepts",
+        "Grammar, Vocabulary & Sentence construction",
+        "Weekly concept tests & revision notes"
+      ],
+      "order": 3
+    },
+    {
+      "id": "cls-7-8",
+      "name": "Class 7 – 8",
+      "gradeRange": "Middle School (Grades 7 & 8)",
+      "monthlyFee": 600,
+      "description": "Pre-secondary preparation to build deep fundamentals before high school academic pressure begins.",
+      "features": [
+        "Advanced Mathematics (Algebra, Geometry, Arithmetic)",
+        "In-depth Science with practical examples",
+        "English Language skills & Creative writing",
+        "Logical reasoning & Analytical thinking",
+        "Individual doubt clearing & progress tracking"
+      ],
+      "order": 4
+    }
+  ],
+  "teachers": [
+    {
+      "id": "teacher-abulques",
+      "name": "Abulques",
+      "qualification": "Graduation completed from University of Delhi (DU)",
+      "role": "Faculty Member & Foundation Mentor",
+      "subjects": [
+        "Mathematics",
+        "Science",
+        "Basic Concepts"
+      ],
+      "teachingPhilosophy": "Focuses on simplifying difficult concepts so young students understand the logic rather than memorizing answers without comprehension.",
+      "order": 1
+    },
+    {
+      "id": "teacher-inam",
+      "name": "Inam",
+      "qualification": "Graduation completed from University of Delhi (DU)",
+      "role": "Faculty Member & Academic Guide",
+      "subjects": [
+        "English",
+        "Reasoning",
+        "Foundation Studies"
+      ],
+      "teachingPhilosophy": "Encourages consistent daily study discipline, clear communication, and building confidence in every child through regular practice.",
+      "order": 2
+    }
+  ],
+  "dailyQuestions": [
+    {
+      "id": "dq-1",
+      "date": "2026-08-31",
+      "subject": "Mathematics",
+      "studentClass": "Class 5 – 6",
+      "question": "A cyclist travels 45 kilometers in 3 hours at a constant speed. How many kilometers will the cyclist cover in 7 hours at the same speed?",
+      "options": [
+        "90 km",
+        "105 km",
+        "115 km",
+        "120 km"
+      ],
+      "answer": "105 km",
+      "explanation": "Step 1: Calculate the speed per hour = 45 km ÷ 3 hours = 15 km/hour.\nStep 2: Distance covered in 7 hours = 15 km/hour × 7 hours = 105 km.",
+      "hint": "First find the distance travelled in 1 single hour.",
+      "difficulty": "Medium",
+      "isPublished": true,
+      "createdAt": "2026-08-31T06:00:00.000Z"
+    },
+    {
+      "id": "dq-2",
+      "date": "2026-08-30",
+      "subject": "Science",
+      "studentClass": "Class 7 – 8",
+      "question": "Which gas is absorbed by green plants during the process of photosynthesis to prepare their food?",
+      "options": [
+        "Oxygen",
+        "Carbon Dioxide",
+        "Nitrogen",
+        "Hydrogen"
+      ],
+      "answer": "Carbon Dioxide (CO₂)",
+      "explanation": "During photosynthesis, green plants absorb carbon dioxide from the air and water from the soil in the presence of sunlight and chlorophyll to produce glucose (food) and release oxygen.",
+      "hint": "It is the gas that animals and humans exhale.",
+      "difficulty": "Easy",
+      "isPublished": true,
+      "createdAt": "2026-08-30T06:00:00.000Z"
+    },
+    {
+      "id": "dq-3",
+      "date": "2026-08-29",
+      "subject": "English",
+      "studentClass": "Class 1 – 4",
+      "question": "Choose the correct opposite (Antonym) for the word: \"BRAVE\".",
+      "options": [
+        "Strong",
+        "Cowardly / Timid",
+        "Wise",
+        "Clever"
+      ],
+      "answer": "Cowardly / Timid",
+      "explanation": "Brave means showing courage or ready to face danger. The exact opposite is cowardly or timid (fearful).",
+      "hint": "Think of someone who is easily scared.",
+      "difficulty": "Easy",
+      "isPublished": true,
+      "createdAt": "2026-08-29T06:00:00.000Z"
+    },
+    {
+      "id": "dq-4",
+      "date": "2026-08-28",
+      "subject": "Reasoning",
+      "studentClass": "Class 5 – 8",
+      "question": "Complete the pattern: 3, 7, 15, 31, 63, ?",
+      "options": [
+        "95",
+        "120",
+        "127",
+        "135"
+      ],
+      "answer": "127",
+      "explanation": "Each number is obtained by multiplying the previous number by 2 and adding 1: \n(3×2)+1 = 7, \n(7×2)+1 = 15, \n(15×2)+1 = 31, \n(31×2)+1 = 63, \n(63×2)+1 = 127.",
+      "hint": "Double the previous number and add one.",
+      "difficulty": "Challenging",
+      "isPublished": true,
+      "createdAt": "2026-08-28T06:00:00.000Z"
+    },
+    {
+      "id": "dq-5",
+      "date": "2026-08-27",
+      "subject": "General Knowledge",
+      "studentClass": "Class 1 – 4",
+      "question": "How many days are there in a Leap Year?",
+      "options": [
+        "364 days",
+        "365 days",
+        "366 days",
+        "367 days"
+      ],
+      "answer": "366 days",
+      "explanation": "A normal year has 365 days, but a leap year occurs once every four years and has 366 days because February has 29 days instead of 28.",
+      "hint": "It has one extra day in the month of February.",
+      "difficulty": "Easy",
+      "isPublished": true,
+      "createdAt": "2026-08-27T06:00:00.000Z"
+    }
+  ],
+  "news": [
+    {
+      "id": "news-1",
+      "title": "Admissions Open: 3-Day Free Trial Available for Nursery to Class 8",
+      "description": "Parents can enroll their children for a complimentary 3-day trial class to experience the classroom atmosphere, teaching method, and personal attention before taking admission.",
+      "category": "Admission",
+      "date": "2026-08-31",
+      "isPublished": true,
+      "isImportant": true
+    },
+    {
+      "id": "news-2",
+      "title": "Weekly Concept Revision & Practice Test Every Saturday",
+      "description": "All batches will participate in our light weekly concept revision test this Saturday to reinforce what was taught during the week and identify topics needing extra attention.",
+      "category": "Test Notice",
+      "date": "2026-08-28",
+      "isPublished": true,
+      "isImportant": false
+    },
+    {
+      "id": "news-3",
+      "title": "New Evening Batch Timings for Class 5 to Class 8",
+      "description": "To accommodate school schedules, additional evening slots from 4:30 PM to 6:30 PM are now active. Contact us on WhatsApp to select your preferred time slot.",
+      "category": "Timing",
+      "date": "2026-08-25",
+      "isPublished": true,
+      "isImportant": false
+    },
+    {
+      "id": "news-4",
+      "title": "Monthly Parent-Teacher Progress Discussion",
+      "description": "We hold regular individual discussions with parents to review daily attendance, homework completion, and conceptual improvement.",
+      "category": "Institute Activity",
+      "date": "2026-08-20",
+      "isPublished": true,
+      "isImportant": false
+    }
+  ],
+  "testimonials": [
+    {
+      "id": "test-1",
+      "parentName": "Mohammad Farooq",
+      "studentClass": "Class 4",
+      "quote": "Teachers explain concepts in a simple way and my child has become more regular with studies. He used to hesitate in mathematics, but now attempts questions happily.",
+      "rating": 5,
+      "isPublished": true
+    },
+    {
+      "id": "test-2",
+      "parentName": "Shabana Parveen",
+      "studentClass": "Class 2",
+      "quote": "The 3-day free trial allowed us to see how much personal attention the teachers give to every child. The monthly fee is very reasonable for our family budget.",
+      "rating": 5,
+      "isPublished": true
+    },
+    {
+      "id": "test-3",
+      "parentName": "Rashid Khan",
+      "studentClass": "Class 7",
+      "quote": "I like that the focus is on understanding the basics rather than just memorizing answers for exams. My daughter now enjoys solving the daily questions.",
+      "rating": 5,
+      "isPublished": true
+    }
+  ],
+  "gallery": [
+    {
+      "id": "gal-1",
+      "title": "Focused Classroom Learning",
+      "category": "Classroom",
+      "imageUrl": "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80",
+      "caption": "Students engaged in interactive conceptual problem solving.",
+      "order": 1
+    },
+    {
+      "id": "gal-2",
+      "title": "Teacher Mentorship & Guidance",
+      "category": "Learning Environment",
+      "imageUrl": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
+      "caption": "One-on-one attention ensuring every child understands the core concept.",
+      "order": 2
+    },
+    {
+      "id": "gal-3",
+      "title": "Reading & English Comprehension",
+      "category": "Books",
+      "imageUrl": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80",
+      "caption": "Encouraging independent reading and vocabulary building from early years.",
+      "order": 3
+    },
+    {
+      "id": "gal-4",
+      "title": "Mathematics Practice & Worksheets",
+      "category": "Activities",
+      "imageUrl": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80",
+      "caption": "Step-by-step arithmetic and geometry practice.",
+      "order": 4
+    },
+    {
+      "id": "gal-5",
+      "title": "Young Learners Nursery to Class 2",
+      "category": "Students",
+      "imageUrl": "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=800&q=80",
+      "caption": "Building love for learning and regular discipline.",
+      "order": 5
+    },
+    {
+      "id": "gal-6",
+      "title": "Group Problem Solving",
+      "category": "Learning Environment",
+      "imageUrl": "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=800&q=80",
+      "caption": "Collaborative discussion and peer motivation.",
+      "order": 6
+    }
+  ],
+  "faqs": [
+    {
+      "id": "faq-1",
+      "question": "What classes does IQRA INSTITUTE teach?",
+      "answer": "We provide structured learning support for young children from Nursery/UKG through Class 8, focusing on basic concepts, subject clarity, and regular study habits.",
+      "order": 1
+    },
+    {
+      "id": "faq-2",
+      "question": "What are the monthly fees?",
+      "answer": "Our monthly fees are designed to be affordable for local families: Nursery – UKG is ₹350/month, Class 1 – 4 is ₹300/month, Class 5 – 6 is ₹400/month, and Class 7 – 8 is ₹600/month. No heavy upfront admission charges.",
+      "order": 2
+    },
+    {
+      "id": "faq-3",
+      "question": "Is there a trial class available before admission?",
+      "answer": "Yes! We offer a 3-Day Free Trial Class (\"Try Before You Decide\"). Your child can attend classes for 3 days to experience our classroom environment and teaching approach before you decide.",
+      "order": 3
+    },
+    {
+      "id": "faq-4",
+      "question": "How can I contact the institute or visit?",
+      "answer": "You can call us directly at 8882257389 or message us on WhatsApp at 7678365870. You can also submit the trial request form on this website and our team will get in touch with you.",
+      "order": 4
+    },
+    {
+      "id": "faq-5",
+      "question": "Are the fees charged monthly or yearly?",
+      "answer": "All our fees are charged on a simple monthly basis with no long-term lock-in or burden on parents.",
+      "order": 5
+    },
+    {
+      "id": "faq-6",
+      "question": "How do teachers communicate with parents about progress?",
+      "answer": "We hold regular monthly discussions with parents and maintain direct communication regarding attendance, homework regularity, and areas where the child is improving.",
+      "order": 6
+    }
+  ],
+  "trialRequests": [
+    {
+      "id": "trial-demo-1",
+      "studentName": "Zayd Ahmad",
+      "parentName": "Tariq Ahmad",
+      "studentClass": "Class 3",
+      "age": "8",
+      "phone": "9876543210",
+      "whatsapp": "9876543210",
+      "preferredTime": "Evening (4:30 PM - 6:00 PM)",
+      "message": "Looking for support in basic mathematics and English reading.",
+      "status": "new",
+      "createdAt": "2026-08-30T10:15:00.000Z",
+      "notes": "Called parent; trial scheduled for Wednesday."
+    }
+  ],
+  "adminPasswordHash": "iqra2026"
+}
