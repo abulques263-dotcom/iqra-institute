@@ -25,7 +25,8 @@ export const ClassesFeesSection: React.FC<ClassesFeesProps> = ({ classes, onSele
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
           {sortedClasses.map((item) => {
             const isFeatured = item.isPopular;
-            const displayedFee = item.id === 'cls-nursery-ukg' ? 500 : item.monthlyFee;
+            const isNursery = item.id === 'cls-nursery-ukg' || item.name.toLowerCase().includes('nursery');
+            const displayedFee = isNursery ? 500 : item.monthlyFee;
             return (
               <div key={item.id} className={`relative flex flex-col justify-between rounded-2xl bg-white p-6 sm:p-7 transition-all duration-300 ${isFeatured ? 'border-2 border-amber-500 shadow-lg ring-1 ring-amber-400/30' : 'border border-stone-200 shadow-sm hover:shadow-md'}`}>
                 {isFeatured && <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-amber-600 text-white text-[11px] font-bold uppercase tracking-wider px-3.5 py-0.5 rounded-full shadow-xs flex items-center gap-1"><Sparkles className="w-3 h-3 text-amber-200" /> Most Popular</div>}
