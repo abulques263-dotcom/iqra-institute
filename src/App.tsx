@@ -51,8 +51,6 @@ export function App() {
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [faqs, setFaqs] = useState<FAQItem[]>([]);
-
-  // Modals & Triggers
   const [trialModalOpen, setTrialModalOpen] = useState(false);
   const [selectedClassForTrial, setSelectedClassForTrial] = useState<string>('Class 1 – 4');
   const [archiveModalOpen, setArchiveModalOpen] = useState(false);
@@ -61,7 +59,6 @@ export function App() {
   const [practiceModalOpen, setPracticeModalOpen] = useState(false);
   const [aiTutorInitialPrompt, setAiTutorInitialPrompt] = useState<string | undefined>(undefined);
 
-  // Load data from backend
   const loadData = async () => {
     try {
       const [sData, cData, tData, qData, nData, gData, tmData, fData] = await Promise.all([
@@ -76,7 +73,17 @@ export function App() {
       ]);
 
       if (sData) setSettings(sData);
-      if (cData && cData.length > 0) setClasses(cData);
+
+      // GitHub Pages is static and does not provide the Express /api backend.
+      // Use the same public class data as a fallback so the fee cards always render.
+      const staticClasses: ClassFeeItem[] = [
+        { id: 'cls-nursery-ukg', name: 'Nursery – UKG', gradeRange: 'Pre-Primary (Nursery, LKG, UKG)', monthlyFee: 500, description: 'Early childhood foundation focusing on phonics, letter formation, basic counting, motor skills and joyful learning habits.', features: ['Alphabet, Phonics & Sound recognition', 'Number sense & Basic counting', 'Pencil grip, coloring & motor development', 'Friendly, patient and caring atmosphere', 'Daily 1.5 hours interactive session'], order: 1 },
+        { id: 'cls-1-4', name: 'Class 1 – 4', gradeRange: 'Primary School (Grades 1 to 4)', monthlyFee: 300, description: 'Strong foundation in core subjects — Arithmetic, Reading, Writing, Science concepts, and good study discipline.', features: ['Basic Mathematics (Addition, Subtraction, Multiplication, Division)', 'English reading comprehension & handwriting', 'Basic Science & Environmental understanding', 'Daily homework check & practice worksheets', 'Encouraging curiosity and self-confidence'], isPopular: true, order: 2 },
+        { id: 'cls-5-6', name: 'Class 5 – 6', gradeRange: 'Upper Primary (Grades 5 & 6)', monthlyFee: 400, description: 'Transition to structured conceptual learning, problem-solving, English grammar, and systematic subject mastery.', features: ['Conceptual Mathematics & Word problems', 'General Science (Physics, Chemistry, Biology basics)', 'Social Studies & Map concepts', 'Grammar, Vocabulary & Sentence construction', 'Weekly concept tests & revision notes'], order: 3 },
+        { id: 'cls-7-8', name: 'Class 7 – 8', gradeRange: 'Middle School (Grades 7 & 8)', monthlyFee: 600, description: 'Pre-secondary preparation to build deep fundamentals before high school academic pressure begins.', features: ['Advanced Mathematics (Algebra, Geometry, Arithmetic)', 'In-depth Science with practical examples', 'English Language skills & Creative writing', 'Logical reasoning & Analytical thinking', 'Individual doubt clearing & progress tracking'], order: 4 }
+      ];
+
+      setClasses(cData && cData.length > 0 ? cData : staticClasses);
       if (tData && tData.length > 0) setTeachers(tData);
       if (qData && qData.length > 0) setQuestions(qData);
       if (nData && nData.length > 0) setNews(nData);
@@ -88,244 +95,42 @@ export function App() {
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const openTrialModal = (prefillClass?: string) => {
-    if (prefillClass) setSelectedClassForTrial(prefillClass);
-    setTrialModalOpen(true);
-  };
-
-  const scrollToSection = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      const offset = 80;
-      const pos = el.getBoundingClientRect().top + window.pageYOffset - offset;
-      window.scrollTo({ top: pos, behavior: 'smooth' });
-    }
-  };
-
-  // Today's question is the first question in list
+  useEffect(() => { loadData(); }, []);
+  const openTrialModal = (prefillClass?: string) => { if (prefillClass) setSelectedClassForTrial(prefillClass); setTrialModalOpen(true); };
+  const scrollToSection = (id: string) => { const el = document.getElementById(id); if (el) { const offset = 80; const pos = el.getBoundingClientRect().top + window.pageYOffset - offset; window.scrollTo({ top: pos, behavior: 'smooth' }); } };
   const todaysQuestion = questions.length > 0 ? questions[0] : null;
-
   const whatsappMessage = encodeURIComponent("Assalamualaikum, I would like to know more about IQRA INSTITUTE and the 3-day trial classes.");
   const whatsappUrl = `https://wa.me/91${settings.whatsapp}?text=${whatsappMessage}`;
 
   return (
     <div className="min-h-screen bg-stone-50 text-slate-900 font-['Plus_Jakarta_Sans'] antialiased selection:bg-amber-100 selection:text-amber-900">
-      
-      {/* 1. Header & Navigation */}
-      <Navbar
-        settings={settings}
-        onOpenTrialModal={openTrialModal}
-        onOpenDailyQuestions={() => setArchiveModalOpen(true)}
-        onOpenPractice={() => setPracticeModalOpen(true)}
-        onOpenAiTutor={() => {
-          setAiTutorInitialPrompt(undefined);
-          setAiTutorOpen(true);
-        }}
-        onOpenAdmin={() => setAdminOpen(true)}
-      />
-
+      <Navbar settings={settings} onOpenTrialModal={openTrialModal} onOpenDailyQuestions={() => setArchiveModalOpen(true)} onOpenPractice={() => setPracticeModalOpen(true)} onOpenAiTutor={() => { setAiTutorInitialPrompt(undefined); setAiTutorOpen(true); }} onOpenAdmin={() => setAdminOpen(true)} />
       <main>
-        {/* 2. Hero Section */}
-        <Hero
-          settings={settings}
-          onOpenTrialModal={() => openTrialModal()}
-          onOpenContact={() => scrollToSection('contact')}
-          onExploreClasses={() => scrollToSection('classes')}
-        />
-
-        {/* 3. Daily Question Spotlight */}
-        <DailyQuestionWidget
-          question={todaysQuestion}
-          onOpenArchive={() => setArchiveModalOpen(true)}
-          onOpenPractice={() => setPracticeModalOpen(true)}
-          onAskAiTutor={(prompt) => {
-            setAiTutorInitialPrompt(prompt);
-            setAiTutorOpen(true);
-          }}
-        />
-
-        {/* 4. About IQRA Section */}
+        <Hero settings={settings} onOpenTrialModal={() => openTrialModal()} onOpenContact={() => scrollToSection('contact')} onExploreClasses={() => scrollToSection('classes')} />
+        <DailyQuestionWidget question={todaysQuestion} onOpenArchive={() => setArchiveModalOpen(true)} onOpenPractice={() => setPracticeModalOpen(true)} onAskAiTutor={(prompt) => { setAiTutorInitialPrompt(prompt); setAiTutorOpen(true); }} />
         <AboutSection />
-
-        {/* 5. Classes & Monthly Fees Section */}
-        <ClassesFeesSection
-          classes={classes}
-          onSelectClassForTrial={(clsName) => openTrialModal(clsName)}
-        />
-
-        {/* 6. Teachers Section */}
-        <TeachersSection
-          teachers={teachers}
-          onOpenTrial={() => openTrialModal()}
-        />
-
-        {/* 7. 3-Day Trial Admission Section */}
-        <TrialAdmissionSection
-          initialClass={selectedClassForTrial}
-          whatsappNumber={settings.whatsapp}
-          phoneNumber={settings.phone}
-          address={settings.address}
-        />
-
-        {/* 8. Why Choose Us (6 Reason Cards) */}
+        <ClassesFeesSection classes={classes} onSelectClassForTrial={(clsName) => openTrialModal(clsName)} />
+        <TeachersSection teachers={teachers} onOpenTrial={() => openTrialModal()} />
+        <TrialAdmissionSection initialClass={selectedClassForTrial} whatsappNumber={settings.whatsapp} phoneNumber={settings.phone} address={settings.address} />
         <WhyChooseUsSection />
-
-        {/* 9. Short News & Announcements */}
-        <NewsSection
-          news={news}
-          onOpenTrial={() => openTrialModal()}
-        />
-
-        {/* 10. Gallery Showcase */}
-        <GallerySection
-          gallery={gallery}
-        />
-
-        {/* 11. Testimonials */}
-        <TestimonialsSection
-          testimonials={testimonials}
-        />
-
-        {/* 12. FAQ Section */}
-        <FAQSection
-          faqs={faqs}
-          phone={settings.phone}
-          whatsapp={settings.whatsapp}
-        />
-
-        {/* 13. Contact & Direct Message Section */}
-        <ContactSection
-          settings={settings}
-          onOpenTrial={() => openTrialModal()}
-        />
+        <NewsSection news={news} onOpenTrial={() => openTrialModal()} />
+        <GallerySection gallery={gallery} />
+        <TestimonialsSection testimonials={testimonials} />
+        <FAQSection faqs={faqs} phone={settings.phone} whatsapp={settings.whatsapp} />
+        <ContactSection settings={settings} onOpenTrial={() => openTrialModal()} />
       </main>
-
-      {/* 14. Footer */}
-      <Footer
-        settings={settings}
-        onOpenTrial={() => openTrialModal()}
-        onOpenAdmin={() => setAdminOpen(true)}
-      />
-
-      {/* Floating Action Buttons for Mobile / Quick Access */}
+      <Footer settings={settings} onOpenTrial={() => openTrialModal()} onOpenAdmin={() => setAdminOpen(true)} />
       <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2.5">
-        {/* Iqra AI Study Assistant Floating Pill */}
-        <button
-          id="floating-ai-tutor-btn"
-          type="button"
-          onClick={() => {
-            setAiTutorInitialPrompt(undefined);
-            setAiTutorOpen(true);
-          }}
-          className="group relative flex items-center gap-2 pl-3 pr-4 py-2.5 rounded-full bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-emerald-400/40"
-          title="Ask Iqra AI Study Assistant"
-        >
-          <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-            <Sparkles className="w-4 h-4 text-emerald-200" />
-          </div>
-          <div className="flex flex-col text-left">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-200 leading-none">24/7 Tutor</span>
-            <span className="text-xs font-black tracking-tight leading-tight">Ask Iqra AI</span>
-          </div>
-        </button>
-
-        {/* Quick Practice Mode Float */}
-        <button
-          id="floating-practice-btn"
-          type="button"
-          onClick={() => setPracticeModalOpen(true)}
-          className="w-11 h-11 rounded-full bg-amber-600 hover:bg-amber-700 text-white shadow-lg flex items-center justify-center transition-transform hover:scale-105"
-          title="Practice 1,000+ Questions"
-        >
-          <Brain className="w-5 h-5" />
-        </button>
-
-        {/* Quick WhatsApp Float */}
-        <a
-          id="floating-whatsapp-btn"
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-11 h-11 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg flex items-center justify-center transition-transform hover:scale-105"
-          title="Chat on WhatsApp"
-        >
-          <MessageCircle className="w-6 h-6" />
-        </a>
-
-        {/* Quick Call Float */}
-        <a
-          id="floating-call-btn"
-          href={`tel:${settings.phone}`}
-          className="w-11 h-11 rounded-full bg-slate-900 hover:bg-slate-800 text-white shadow-lg flex items-center justify-center transition-transform hover:scale-105"
-          title="Call Now"
-        >
-          <Phone className="w-5 h-5" />
-        </a>
+        <button id="floating-ai-tutor-btn" type="button" onClick={() => { setAiTutorInitialPrompt(undefined); setAiTutorOpen(true); }} className="group relative flex items-center gap-2 pl-3 pr-4 py-2.5 rounded-full bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-emerald-400/40" title="Ask Iqra AI Study Assistant"><div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center shrink-0"><Sparkles className="w-4 h-4 text-emerald-200" /></div><div className="flex flex-col text-left"><span className="text-[10px] font-bold uppercase tracking-wider text-emerald-200 leading-none">24/7 Tutor</span><span className="text-xs font-black tracking-tight leading-tight">Ask Iqra AI</span></div></button>
+        <button id="floating-practice-btn" type="button" onClick={() => setPracticeModalOpen(true)} className="w-11 h-11 rounded-full bg-amber-600 hover:bg-amber-700 text-white shadow-lg flex items-center justify-center transition-transform hover:scale-105" title="Practice 1,000+ Questions"><Brain className="w-5 h-5" /></button>
+        <a id="floating-whatsapp-btn" href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg flex items-center justify-center transition-transform hover:scale-105" title="Chat on WhatsApp"><MessageCircle className="w-6 h-6" /></a>
+        <a id="floating-call-btn" href={`tel:${settings.phone}`} className="w-11 h-11 rounded-full bg-slate-900 hover:bg-slate-800 text-white shadow-lg flex items-center justify-center transition-transform hover:scale-105" title="Call Now"><Phone className="w-5 h-5" /></a>
       </div>
-
-      {/* 3-Day Trial Pop-up Modal */}
-      {trialModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-fadeIn">
-          <div className="bg-white rounded-3xl border border-stone-200 shadow-2xl w-full max-w-2xl overflow-hidden relative">
-            <button
-              onClick={() => setTrialModalOpen(false)}
-              className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-stone-100 z-10 transition-colors"
-              aria-label="Close modal"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="p-6 sm:p-8">
-              <TrialAdmissionSection
-                initialClass={selectedClassForTrial}
-                whatsappNumber={settings.whatsapp}
-                phoneNumber={settings.phone}
-                address={settings.address}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Daily Questions Archive Modal */}
-      <DailyQuestionsArchiveModal
-        isOpen={archiveModalOpen}
-        onClose={() => setArchiveModalOpen(false)}
-        questions={questions}
-      />
-
-      {/* Iqra AI Study Assistant Chatbot Modal */}
-      <AIStudyAssistant
-        isOpen={aiTutorOpen}
-        onClose={() => {
-          setAiTutorOpen(false);
-          setAiTutorInitialPrompt(undefined);
-        }}
-        initialPrompt={aiTutorInitialPrompt}
-      />
-
-      {/* Practice Mode (1,000+ Question Bank) Modal */}
-      <PracticeModeModal
-        isOpen={practiceModalOpen}
-        onClose={() => setPracticeModalOpen(false)}
-        onOpenAiTutor={(prompt) => {
-          setAiTutorInitialPrompt(prompt);
-          setAiTutorOpen(true);
-        }}
-      />
-
-      {/* Admin Portal Modal */}
-      {adminOpen && (
-        <AdminDashboard
-          onClose={() => setAdminOpen(false)}
-          onDataUpdated={loadData}
-        />
-      )}
-
+      {trialModalOpen && <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-fadeIn"><div className="bg-white rounded-3xl border border-stone-200 shadow-2xl w-full max-w-2xl overflow-hidden relative"><button onClick={() => setTrialModalOpen(false)} className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-stone-100 z-10 transition-colors" aria-label="Close modal"><X className="w-5 h-5" /></button><div className="p-6 sm:p-8"><TrialAdmissionSection initialClass={selectedClassForTrial} whatsappNumber={settings.whatsapp} phoneNumber={settings.phone} address={settings.address} /></div></div></div>}
+      <DailyQuestionsArchiveModal isOpen={archiveModalOpen} onClose={() => setArchiveModalOpen(false)} questions={questions} />
+      <AIStudyAssistant isOpen={aiTutorOpen} onClose={() => { setAiTutorOpen(false); setAiTutorInitialPrompt(undefined); }} initialPrompt={aiTutorInitialPrompt} />
+      <PracticeModeModal isOpen={practiceModalOpen} onClose={() => setPracticeModalOpen(false)} onOpenAiTutor={(prompt) => { setAiTutorInitialPrompt(prompt); setAiTutorOpen(true); }} />
+      {adminOpen && <AdminDashboard onClose={() => setAdminOpen(false)} onDataUpdated={loadData} />}
     </div>
   );
 }
