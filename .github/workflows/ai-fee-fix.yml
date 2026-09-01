@@ -1,0 +1,86 @@
+name: Fix AI chatbot and Nursery fee
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Apply fixes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          # Use a currently supported Gemini model instead of the invalid/nonexistent
+          # gemini-3.7-flash model used by the chatbot routes.
+          p = Path('server.ts')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace("model: 'gemini-3.7-flash'", "model: 'gemini-2.5-flash'")
+          p.write_text(s, encoding='utf-8')
+
+          # Make the Nursery/UKG fee ₹500 even when an older persisted db.json
+          # still contains the previous ₹350 value.
+          p = Path('server.ts')
+          s = p.read_text(encoding='utf-8')
+          marker = "        classes: loaded.classes?.length ? loaded.classes : initialClasses,\n"
+          replacement = marker + "        // Current fee update: Nursery–UKG is ₹500/month.\n        classes: (loaded.classes?.length ? loaded.classes : initialClasses).map((c: ClassFeeItem) => c.id === 'cls-nursery-ukg' ? { ...c, monthlyFee: 500 } : c),\n"
+          if "Current fee update: Nursery–UKG is ₹500/month." not in s:
+              if marker not in s:
+                  raise SystemExit('Could not find database class loading marker')
+              s = s.replace(marker, replacement, 1)
+          p.write_text(s, encoding='utf-8')
+
+          # Update default data used for fresh deployments.
+          for name in ['server/defaultData.ts']:
+              p = Path(name)
+              s = p.read_text(encoding='utf-8')
+              s = s.replace("id: 'cls-nursery-ukg',\n    name: 'Nursery – UKG',\n    gradeRange: 'Pre-Primary (Nursery, LKG, UKG)',\n    monthlyFee: 350,", "id: 'cls-nursery-ukg',\n    name: 'Nursery – UKG',\n    gradeRange: 'Pre-Primary (Nursery, LKG, UKG)',\n    monthlyFee: 500,")
+              s = s.replace('Nursery – UKG is ₹350/month', 'Nursery – UKG is ₹500/month')
+              p.write_text(s, encoding='utf-8')
+
+          # Update the currently persisted JSON database without disturbing any
+          # other classes/content.
+          import json
+          p = Path('data/db.json')
+          if p.exists():
+              data = json.loads(p.read_text(encoding='utf-8'))
+              for c in data.get('classes', []):
+                  if c.get('id') == 'cls-nursery-ukg':
+                      c['monthlyFee'] = 500
+              for f in data.get('faqs', []):
+                  if f.get('id') == 'faq-2':
+                      a = f.get('answer', '')
+                      f['answer'] = a.replace('Nursery – UKG is ₹350/month', 'Nursery – UKG is ₹500/month')
+              p.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+          # UI-level safety net: the requested Nursery fee remains ₹500 even if
+          # the API is temporarily unavailable.
+          p = Path('src/components/ClassesFeesSection.tsx')
+          s = p.read_text(encoding='utf-8')
+          old = "{item.monthlyFee}"
+          new = "{item.id === 'cls-nursery-ukg' ? 500 : item.monthlyFee}"
+          if old in s and new not in s:
+              s = s.replace(old, new, 1)
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Commit fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add server.ts server/defaultData.ts data/db.json src/components/ClassesFeesSection.tsx
+          if git diff --cached --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git commit -m "Fix AI chatbot Gemini model and set Nursery fee to ₹500"
+          git push
