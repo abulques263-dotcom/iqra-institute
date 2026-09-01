@@ -99,6 +99,8 @@ function loadDatabase() {
         // Ensure defaults if any array is empty
         settings: { ...initialSettings, ...(loaded.settings || {}) },
         classes: loaded.classes?.length ? loaded.classes : initialClasses,
+        // Current fee update: Nursery–UKG is ₹500/month.
+        classes: (loaded.classes?.length ? loaded.classes : initialClasses).map((c: ClassFeeItem) => c.id === 'cls-nursery-ukg' ? { ...c, monthlyFee: 500 } : c),
         teachers: loaded.teachers?.length ? loaded.teachers : initialTeachers,
         dailyQuestions: loaded.dailyQuestions?.length ? loaded.dailyQuestions : initialDailyQuestions,
         questionsBank: loadedBank,
@@ -1590,7 +1592,7 @@ Current Student Query:
 Respond strictly with valid JSON:`;
 
       const response = await gemini.models.generateContent({
-        model: 'gemini-3.7-flash',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json'
@@ -1675,7 +1677,7 @@ Format output as JSON:
 }`;
 
       const response = await gemini.models.generateContent({
-        model: 'gemini-3.7-flash',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json'
@@ -1757,7 +1759,7 @@ Respond strictly with valid JSON:
 }`;
 
       const response = await gemini.models.generateContent({
-        model: 'gemini-3.7-flash',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json'
@@ -1879,7 +1881,7 @@ Respond ONLY with valid JSON in this exact structure:
 }`;
 
       const response = await gemini.models.generateContent({
-        model: 'gemini-3.7-flash',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json'

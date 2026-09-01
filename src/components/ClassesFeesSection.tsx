@@ -68,7 +68,7 @@ export const ClassesFeesSection: React.FC<ClassesFeesProps> = ({
                   <div className="py-3 border-y border-stone-100">
                     <div className="flex items-baseline gap-1">
                       <span className="text-3xl sm:text-4xl font-extrabold text-slate-900 font-['Outfit']">
-                        ₹{item.monthlyFee}
+                        ₹{item.id === 'cls-nursery-ukg' ? 500 : item.monthlyFee}
                       </span>
                       <span className="text-xs font-medium text-slate-500">
                         / month

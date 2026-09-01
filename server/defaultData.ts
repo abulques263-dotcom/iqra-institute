@@ -29,7 +29,7 @@ export const initialClasses: ClassFeeItem[] = [
     id: 'cls-nursery-ukg',
     name: 'Nursery – UKG',
     gradeRange: 'Pre-Primary (Nursery, LKG, UKG)',
-    monthlyFee: 350,
+    monthlyFee: 500,
     description: 'Early childhood foundation focusing on phonics, letter formation, basic counting, motor skills and joyful learning habits.',
     features: [
       'Alphabet, Phonics & Sound recognition',
@@ -309,7 +309,7 @@ export const initialFAQs: FAQItem[] = [
   {
     id: 'faq-2',
     question: 'What are the monthly fees?',
-    answer: 'Our monthly fees are designed to be affordable for local families: Nursery – UKG is ₹350/month, Class 1 – 4 is ₹300/month, Class 5 – 6 is ₹400/month, and Class 7 – 8 is ₹600/month. No heavy upfront admission charges.',
+    answer: 'Our monthly fees are designed to be affordable for local families: Nursery – UKG is ₹500/month, Class 1 – 4 is ₹300/month, Class 5 – 6 is ₹400/month, and Class 7 – 8 is ₹600/month. No heavy upfront admission charges.',
     order: 2
   },
   {
