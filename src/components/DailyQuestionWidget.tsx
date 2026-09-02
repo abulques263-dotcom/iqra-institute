@@ -6,7 +6,6 @@ interface DailyQuestionWidgetProps {
   question: DailyQuestion | null;
   onOpenArchive: () => void;
   onOpenPractice?: () => void;
-  onAskAiTutor?: (questionText: string) => void;
 }
 
 export const DailyQuestionWidget: React.FC<DailyQuestionWidgetProps> = ({
@@ -218,7 +217,7 @@ export const DailyQuestionWidget: React.FC<DailyQuestionWidgetProps> = ({
 
         </div>
 
-        {/* Practice Mode & AI Tutor Promotion Banner */}
+        {/* Practice Mode Promotion Banner */}
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-2xl p-5 shadow-sm flex items-center justify-between gap-4">
             <div className="space-y-1">
