@@ -11,18 +11,32 @@ function sendJson(res: any, status: number, body: unknown) {
 }
 
 export default async function handler(req: any, res: any) {
+  if (req.method === 'GET') {
+    const configured = Boolean(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY);
+    return sendJson(res, 200, {
+      ok: true,
+      geminiConfigured: configured,
+      route: '/api/ai/chat'
+    });
+  }
+
   if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
+    res.setHeader('Allow', 'GET, POST');
     return sendJson(res, 405, { error: 'Method not allowed' });
   }
 
-  const { message, history, studentClass, subject } = req.body ?? {};
+  const body = typeof req.body === 'string' ? (() => {
+    try { return JSON.parse(req.body); } catch { return {}; }
+  })() : (req.body ?? {});
+
+  const { message, history, studentClass, subject } = body;
 
   if (!message || typeof message !== 'string') {
     return sendJson(res, 400, { error: 'Message is required' });
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  // Support both names so a correctly-created Google/Gemini key is still usable.
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
   if (!apiKey) {
     return sendJson(res, 503, {
       error: 'GEMINI_API_KEY is not configured on the server.',
@@ -81,9 +95,17 @@ Return only JSON.`;
     });
   } catch (error: any) {
     console.error('Vercel AI chat error:', error);
+    const rawMessage = String(error?.message || error || 'Unknown error');
+    const lower = rawMessage.toLowerCase();
+    const errorType = lower.includes('api key') || lower.includes('permission') || lower.includes('unauthorized')
+      ? 'GEMINI_AUTH_ERROR'
+      : lower.includes('quota') || lower.includes('rate limit')
+        ? 'GEMINI_QUOTA_ERROR'
+        : 'GEMINI_REQUEST_ERROR';
+
     return sendJson(res, 500, {
       error: 'AI response generate nahi ho paya. Please try again.',
-      details: process.env.NODE_ENV === 'development' ? String(error?.message || error) : undefined
+      errorType
     });
   }
 }
