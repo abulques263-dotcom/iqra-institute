@@ -4,25 +4,21 @@ import path from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig(() => {
+  // GitHub Pages serves the project under /iqra-institute/ while Vercel
+  // serves it from the domain root. The workflow sets VITE_BASE_PATH for
+  // GitHub Pages; Vercel keeps the default '/'.
+  const base = process.env.VITE_BASE_PATH || '/';
+
   return {
-    // Vercel serves this app from the domain root.
-    // The previous '/iqra-institute/' base caused Vercel to request JS/CSS
-    // from /iqra-institute/assets/... and resulted in a blank white screen.
-    base: '/',
-
+    base,
     plugins: [react(), tailwindcss()],
-
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
       },
     },
-
     server: {
-      // HMR is disabled in AI Studio via DISABLE_HMR env var.
       hmr: process.env.DISABLE_HMR !== 'true',
-
-      // Disable file watching when DISABLE_HMR is true.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
   };
