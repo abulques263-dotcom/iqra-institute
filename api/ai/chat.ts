@@ -7,15 +7,18 @@ const fallbackSuggestions = [
 ];
 
 function sendJson(res: any, status: number, body: unknown) {
-  res.status(status).json(body);
+  return res.status(status).json(body);
+}
+
+function getApiKey() {
+  return process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.API_KEY || '';
 }
 
 export default async function handler(req: any, res: any) {
   if (req.method === 'GET') {
-    const configured = Boolean(process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY);
     return sendJson(res, 200, {
       ok: true,
-      geminiConfigured: configured,
+      geminiConfigured: Boolean(getApiKey()),
       route: '/api/ai/chat'
     });
   }
@@ -35,8 +38,7 @@ export default async function handler(req: any, res: any) {
     return sendJson(res, 400, { error: 'Message is required' });
   }
 
-  // Support both names so a correctly-created Google/Gemini key is still usable.
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+  const apiKey = getApiKey();
   if (!apiKey) {
     return sendJson(res, 503, {
       error: 'GEMINI_API_KEY is not configured on the server.',
@@ -47,7 +49,9 @@ export default async function handler(req: any, res: any) {
   try {
     const gemini = new GoogleGenAI({ apiKey });
     const formattedHistory = Array.isArray(history)
-      ? history.slice(-6).map((h: any) => `${h?.role === 'user' ? 'Student' : 'Tutor'}: ${String(h?.content ?? '')}`).join('\n')
+      ? history.slice(-6)
+          .map((h: any) => `${h?.role === 'user' ? 'Student' : 'Tutor'}: ${String(h?.content ?? '')}`)
+          .join('\n')
       : '';
 
     const prompt = `You are the "Iqra AI Study Assistant", a supportive school tutor for Nursery to Class 8 students at IQRA INSTITUTE in India.
