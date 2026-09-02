@@ -71,16 +71,25 @@ jobs:
           if old in s and new not in s:
               s = s.replace(old, new, 1)
           p.write_text(s, encoding='utf-8')
+
+          # The public frontend is hosted on GitHub Pages, while the AI endpoint
+          # is hosted on Vercel. Use the Vercel function explicitly for AI chat so
+          # the browser does not incorrectly request /api/ai/chat from GitHub Pages.
+          p = Path('src/api.ts')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace("fetch('/api/ai/chat'", "fetch('https://iqra-institute.vercel.app/api/ai/chat'")
+          s = s.replace("fetch('/api/ai/explain-question'", "fetch('https://iqra-institute.vercel.app/api/ai/explain-question'")
+          p.write_text(s, encoding='utf-8')
           PY
 
       - name: Commit fixes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add server.ts server/defaultData.ts data/db.json src/components/ClassesFeesSection.tsx
+          git add server.ts server/defaultData.ts data/db.json src/components/ClassesFeesSection.tsx src/api.ts
           if git diff --cached --quiet; then
             echo "No changes needed"
             exit 0
           fi
-          git commit -m "Fix AI chatbot Gemini model and set Nursery fee to ₹500"
+          git commit -m "Fix AI chatbot API routing and set Nursery fee to ₹500"
           git push
