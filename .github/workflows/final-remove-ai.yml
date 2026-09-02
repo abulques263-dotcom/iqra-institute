@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Remove all visible AI tutor UI
+      - name: Remove all visible AI tutor UI and code
         shell: python
         run: |
           from pathlib import Path
@@ -29,27 +29,42 @@ jobs:
 
           p = Path('src/components/PracticeModeModal.tsx')
           s = p.read_text(encoding='utf-8')
-
           s = s.replace('  Bot,\n', '')
           s = re.sub(r'\n  onOpenAiTutorWithQuestion\?: \(questionData: \{.*?\n  \}\) => void;', '', s, flags=re.S)
           s = s.replace('  onOpenAiTutorWithQuestion,\n', '')
           s = re.sub(r'\n  const handleAskAiAboutCurrent = \(\) => \{.*?\n  \};\n', '\n', s, flags=re.S)
           s = s.replace('Practice With AI & 1,000+ Question Bank', 'Practice & 1,000+ Question Bank')
           s = s.replace('Foundation questions with instant evaluation, explanations & AI tutor integration', 'Foundation questions with instant evaluation and explanations')
-          s = s.replace('Every question comes with step-by-step conceptual reasoning. If you get stuck, the <strong>Iqra AI Tutor</strong> will explain the solution in simple words!', 'Every question comes with step-by-step conceptual reasoning and simple explanations.')
+          s = re.sub(r'Every question comes with step-by-step conceptual reasoning\. If you get stuck, the <strong>Iqra AI Tutor</strong> will explain the solution in simple words!', 'Every question comes with step-by-step conceptual reasoning and simple explanations.', s)
           s = re.sub(r'\n                  <div className="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-stone-100">\s*<button\s+onClick=\{handleAskAiAboutCurrent\}.*?</button>\s*</div>', '', s, flags=re.S)
           s = s.replace('Review the explanations below or ask the Iqra AI Tutor to master the missed concepts.', 'Review the explanations below and practice the missed concepts.')
           p.write_text(s, encoding='utf-8')
 
-          for path in ['src/components/AIStudyAssistant.tsx', 'api/ai/chat.js', 'api/ai/explain-question.js']:
+          # Remove the complete AI API client section from the frontend API module.
+          api = Path('src/api.ts')
+          a = api.read_text(encoding='utf-8')
+          a = re.sub(r'\n  // ----------------------------------------------------\n  // AI STUDY ASSISTANT & CHAT\n  // ----------------------------------------------------.*?\n  // News Updates', '\n  // News Updates', a, flags=re.S)
+          api.write_text(a, encoding='utf-8')
+
+          # Remove the unused AI component and server endpoints.
+          for path in ['src/components/AIStudyAssistant.tsx', 'api/ai/chat.js', 'api/ai/explain-question.js', 'api/ai/generate-batch.js', 'api/ai/generate-question.js']:
             f = Path(path)
             if f.exists():
               f.unlink()
 
-      - name: Verify no visible AI UI remains
+          # Remove stale AI-only comments/props from the daily question widget.
+          w = Path('src/components/DailyQuestionWidget.tsx')
+          if w.exists():
+            ws = w.read_text(encoding='utf-8')
+            ws = ws.replace('{/* Practice Mode & AI Tutor Promotion Banner */}', '{/* Practice Mode Promotion Banner */}')
+            ws = ws.replace('  onAskAiTutor?: (questionText: string) => void;\n', '')
+            ws = ws.replace('  onAskAiTutor,\n', '')
+            w.write_text(ws, encoding='utf-8')
+
+      - name: Verify no AI UI remains
         run: |
-          if grep -RniE 'Iqra AI|AI Tutor|AI Study Assistant|Ask Iqra AI|Practice With AI' src --include='*.tsx' --include='*.ts'; then
-            echo 'Visible AI UI text/code still found.'
+          if grep -RniE 'Iqra AI|AI Tutor|AI Study Assistant|Ask Iqra AI|Practice With AI|AI tutor integration' src --include='*.tsx' --include='*.ts'; then
+            echo 'AI UI/code still found in frontend source.'
             exit 1
           fi
 
