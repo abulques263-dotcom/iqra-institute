@@ -38,8 +38,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { name: 'Why Choose Us', href: '#why-us' },
     { name: 'Daily Question', href: '#daily-questions' },
     { name: '1,000+ Practice', href: '#practice-mode' },
-    { name: 'Iqra AI Tutor', href: '#ai-tutor' },
-    { name: 'Updates', href: '#news' },
+      { name: 'Updates', href: '#news' },
     { name: 'Gallery', href: '#gallery' },
     { name: 'FAQ', href: '#faq' },
     { name: 'Contact', href: '#contact' },
@@ -54,10 +53,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
     if (href === '#practice-mode') {
       onOpenPractice();
-      return;
-    }
-    if (href === '#ai-tutor') {
-      onOpenAiTutor();
       return;
     }
     const element = document.querySelector(href);

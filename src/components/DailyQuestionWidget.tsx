@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { DailyQuestion } from '../types.js';
-import { Brain, HelpCircle, CheckCircle, Lightbulb, Eye, EyeOff, BookOpen, Sparkles, ArrowRight, Award } from 'lucide-react';
+import { Brain, HelpCircle, CheckCircle, Lightbulb, Eye, EyeOff, BookOpen, ArrowRight, Award } from 'lucide-react';
 
 interface DailyQuestionWidgetProps {
   question: DailyQuestion | null;
@@ -213,19 +213,6 @@ export const DailyQuestionWidget: React.FC<DailyQuestionWidgetProps> = ({
                 </div>
               )}
 
-              {onAskAiTutor && (
-                <div className="pt-2 border-t border-emerald-200/60 flex items-center justify-between">
-                  <span className="text-xs text-emerald-800">Still have a doubt about this topic?</span>
-                  <button
-                    type="button"
-                    onClick={() => onAskAiTutor(`Please explain this question step-by-step in simple language: "${question.question}". The answer is "${question.answer}".`)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-colors"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Ask Iqra AI Tutor</span>
-                  </button>
-                </div>
-              )}
             </div>
           )}
 
@@ -252,24 +239,6 @@ export const DailyQuestionWidget: React.FC<DailyQuestionWidgetProps> = ({
             )}
           </div>
 
-          <div className="bg-gradient-to-r from-emerald-700 to-teal-800 text-white rounded-2xl p-5 shadow-sm flex items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider bg-emerald-900/60 px-2 py-0.5 rounded text-emerald-200">
-                <Sparkles className="w-3 h-3" /> AI Study Assistant
-              </div>
-              <h4 className="text-base font-extrabold font-['Outfit']">Iqra AI Friendly Study Tutor</h4>
-              <p className="text-xs text-emerald-100/90">Ask anything in simple Hindi & English. Real-time homework helper.</p>
-            </div>
-            {onAskAiTutor && (
-              <button
-                type="button"
-                onClick={() => onAskAiTutor('')}
-                className="shrink-0 px-4 py-2.5 rounded-xl bg-white text-emerald-800 font-bold text-xs hover:bg-emerald-50 shadow-sm transition-all"
-              >
-                Chat with AI →
-              </button>
-            )}
-          </div>
         </div>
 
       </div>

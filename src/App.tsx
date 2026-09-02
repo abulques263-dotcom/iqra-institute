@@ -26,7 +26,6 @@ import { FAQSection } from './components/FAQSection.js';
 import { ContactSection } from './components/ContactSection.js';
 import { Footer } from './components/Footer.js';
 import { AdminDashboard } from './components/Admin/AdminDashboard.js';
-import { AIStudyAssistant } from './components/AIStudyAssistant.js';
 import { PracticeModeModal } from './components/PracticeModeModal.js';
 import { Phone, MessageCircle, Sparkles, X, Brain, Bot, HelpCircle } from 'lucide-react';
 
@@ -104,10 +103,10 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-stone-50 text-slate-900 font-['Plus_Jakarta_Sans'] antialiased selection:bg-amber-100 selection:text-amber-900">
-      <Navbar settings={settings} onOpenTrialModal={openTrialModal} onOpenDailyQuestions={() => setArchiveModalOpen(true)} onOpenPractice={() => setPracticeModalOpen(true)} onOpenAiTutor={() => { setAiTutorInitialPrompt(undefined); setAiTutorOpen(true); }} onOpenAdmin={() => setAdminOpen(true)} />
+      <Navbar settings={settings} onOpenTrialModal={openTrialModal} onOpenDailyQuestions={() => setArchiveModalOpen(true)} onOpenPractice={() => setPracticeModalOpen(true)} onOpenAdmin={() => setAdminOpen(true)} />
       <main>
         <Hero settings={settings} onOpenTrialModal={() => openTrialModal()} onOpenContact={() => scrollToSection('contact')} onExploreClasses={() => scrollToSection('classes')} />
-        <DailyQuestionWidget question={todaysQuestion} onOpenArchive={() => setArchiveModalOpen(true)} onOpenPractice={() => setPracticeModalOpen(true)} onAskAiTutor={(prompt) => { setAiTutorInitialPrompt(prompt); setAiTutorOpen(true); }} />
+        <DailyQuestionWidget question={todaysQuestion} onOpenArchive={() => setArchiveModalOpen(true)} onOpenPractice={() => setPracticeModalOpen(true)} />
         <AboutSection />
         <ClassesFeesSection classes={classes} onSelectClassForTrial={(clsName) => openTrialModal(clsName)} />
         <TeachersSection teachers={teachers} onOpenTrial={() => openTrialModal()} />
@@ -121,7 +120,6 @@ export function App() {
       </main>
       <Footer settings={settings} onOpenTrial={() => openTrialModal()} onOpenAdmin={() => setAdminOpen(true)} />
       <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2.5">
-        <button id="floating-ai-tutor-btn" type="button" onClick={() => { setAiTutorInitialPrompt(undefined); setAiTutorOpen(true); }} className="group relative flex items-center gap-2 pl-3 pr-4 py-2.5 rounded-full bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-emerald-400/40" title="Ask Iqra AI Study Assistant"><div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center shrink-0"><Sparkles className="w-4 h-4 text-emerald-200" /></div><div className="flex flex-col text-left"><span className="text-[10px] font-bold uppercase tracking-wider text-emerald-200 leading-none">24/7 Tutor</span><span className="text-xs font-black tracking-tight leading-tight">Ask Iqra AI</span></div></button>
         <button id="floating-practice-btn" type="button" onClick={() => setPracticeModalOpen(true)} className="w-11 h-11 rounded-full bg-amber-600 hover:bg-amber-700 text-white shadow-lg flex items-center justify-center transition-transform hover:scale-105" title="Practice 1,000+ Questions"><Brain className="w-5 h-5" /></button>
         <a id="floating-whatsapp-btn" href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg flex items-center justify-center transition-transform hover:scale-105" title="Chat on WhatsApp"><MessageCircle className="w-6 h-6" /></a>
         <a id="floating-call-btn" href={`tel:${settings.phone}`} className="w-11 h-11 rounded-full bg-slate-900 hover:bg-slate-800 text-white shadow-lg flex items-center justify-center transition-transform hover:scale-105" title="Call Now"><Phone className="w-5 h-5" /></a>
