@@ -1,0 +1,83 @@
+name: Final Remove AI From Website
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: final-remove-ai
+  cancel-in-progress: true
+
+jobs:
+  remove-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Remove all visible AI tutor UI
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          p = Path('src/components/PracticeModeModal.tsx')
+          s = p.read_text(encoding='utf-8')
+
+          s = s.replace('  Bot,\n', '')
+          s = re.sub(r'\n  onOpenAiTutorWithQuestion\?: \(questionData: \{.*?\n  \}\) => void;', '', s, flags=re.S)
+          s = s.replace('  onOpenAiTutorWithQuestion,\n', '')
+          s = re.sub(r'\n  const handleAskAiAboutCurrent = \(\) => \{.*?\n  \};\n', '\n', s, flags=re.S)
+          s = s.replace('Practice With AI & 1,000+ Question Bank', 'Practice & 1,000+ Question Bank')
+          s = s.replace('Foundation questions with instant evaluation, explanations & AI tutor integration', 'Foundation questions with instant evaluation and explanations')
+          s = s.replace('Every question comes with step-by-step conceptual reasoning. If you get stuck, the <strong>Iqra AI Tutor</strong> will explain the solution in simple words!', 'Every question comes with step-by-step conceptual reasoning and simple explanations.')
+          s = re.sub(r'\n                  <div className="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-stone-100">\s*<button\s+onClick=\{handleAskAiAboutCurrent\}.*?</button>\s*</div>', '', s, flags=re.S)
+          s = s.replace('Review the explanations below or ask the Iqra AI Tutor to master the missed concepts.', 'Review the explanations below and practice the missed concepts.')
+          p.write_text(s, encoding='utf-8')
+
+          for path in ['src/components/AIStudyAssistant.tsx', 'api/ai/chat.js', 'api/ai/explain-question.js']:
+            f = Path(path)
+            if f.exists():
+              f.unlink()
+
+      - name: Verify no visible AI UI remains
+        run: |
+          if grep -RniE 'Iqra AI|AI Tutor|AI Study Assistant|Ask Iqra AI|Practice With AI' src --include='*.tsx' --include='*.ts'; then
+            echo 'Visible AI UI text/code still found.'
+            exit 1
+          fi
+
+      - name: Build
+        run: |
+          npm install
+          VITE_BASE_PATH=/iqra-institute/ npm run build
+
+      - name: Commit final removal
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'No changes to commit.'
+          else
+            git commit -m 'Completely remove AI tutor from website'
+            git push
+          fi
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
