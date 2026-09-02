@@ -300,7 +300,7 @@ export const TrialAdmissionSection: React.FC<TrialAdmissionProps> = ({
                         onChange={(e) => setStudentClass(e.target.value)}
                         className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"
                       >
-                        <option value="Nursery – UKG">Nursery – UKG (₹350/mo)</option>
+                        <option value="Nursery – UKG">Nursery – UKG (₹500/mo)</option>
                         <option value="Class 1">Class 1 (₹300/mo)</option>
                         <option value="Class 2">Class 2 (₹300/mo)</option>
                         <option value="Class 3">Class 3 (₹300/mo)</option>
