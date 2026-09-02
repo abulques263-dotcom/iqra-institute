@@ -1,4 +1,3 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI } from '@google/genai';
 
 const fallbackSuggestions = [
@@ -7,11 +6,11 @@ const fallbackSuggestions = [
   'Photosynthesis easy words me samjhao'
 ];
 
-function sendJson(res: VercelResponse, status: number, body: unknown) {
+function sendJson(res: any, status: number, body: unknown) {
   res.status(status).json(body);
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return sendJson(res, 405, { error: 'Method not allowed' });
