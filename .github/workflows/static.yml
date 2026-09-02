@@ -55,4 +55,4 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-# Force a fresh GitHub Pages build after the Nursery–UKG fee correction.
+# Deployment refresh after Nursery–UKG fee correction.
