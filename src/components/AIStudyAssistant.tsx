@@ -26,17 +26,38 @@ export function AIStudyAssistant() {
     setMessages(nextMessages); setInput(''); setLoading(true);
     try {
       const response = await fetch('/api/ai/chat', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, history: messages.slice(-6), studentClass: 'Class 1 to 8', subject: 'General Studies' })
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message,
+          history: messages.slice(-6),
+          studentClass: 'Class 1 to 8',
+          subject: 'General Studies'
+        })
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'AI response failed');
-      setMessages([...nextMessages, { role: 'assistant', content: data.reply || 'Sorry, answer generate nahi ho paya.' }]);
-      if (Array.isArray(data.suggestions) && data.suggestions.length) setSuggestions(data.suggestions);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || `AI request failed (${response.status})`);
+      }
+      setMessages([...nextMessages, {
+        role: 'assistant',
+        content: data.reply || 'Sorry, answer generate nahi ho paya.'
+      }]);
+      if (Array.isArray(data.suggestions) && data.suggestions.length) {
+        setSuggestions(data.suggestions.slice(0, 3));
+      }
     } catch (error) {
       console.error('AI assistant error:', error);
-      setMessages([...nextMessages, { role: 'assistant', content: 'AI se connection abhi available nahi hai. Please thodi der baad dobara try karein.' }]);
-    } finally { setLoading(false); }
+      const messageText = error instanceof Error ? error.message : 'Unknown error';
+      setMessages([...nextMessages, {
+        role: 'assistant',
+        content: messageText.includes('GEMINI_API_KEY')
+          ? 'AI abhi configure nahi hua hai. Admin ko Vercel Environment Variables me GEMINI_API_KEY add karna hoga.'
+          : 'AI se connection abhi available nahi hai. Please dobara try karein.'
+      }]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return <>
@@ -56,7 +77,7 @@ export function AIStudyAssistant() {
         <form onSubmit={e => { e.preventDefault(); sendMessage(); }} className="flex gap-2 pb-3"><input value={input} onChange={e => setInput(e.target.value)} placeholder="Apna question yahan likho..." className="flex-1 min-w-0 rounded-2xl border border-stone-300 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-amber-200" disabled={loading} /><button type="submit" disabled={!input.trim() || loading} className="w-11 h-11 rounded-2xl bg-amber-600 text-white flex items-center justify-center disabled:opacity-40" aria-label="Send question"><Send className="w-4 h-4" /></button></form>
       </div>
     </div>}
-    <button type="button" onClick={() => setOpen(v => !v)} className="fixed bottom-5 right-5 z-[59] w-12 h-12 rounded-full bg-slate-900 hover:bg-slate-800 text-white shadow-xl flex items-center justify-center" title="Ask Iqra AI" aria-label="Open Iqra AI Study Assistant">{open ? <X className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}</button>
+    <button type="button" onClick={() => setOpen(v => !v)} className="fixed bottom-5 right-20 sm:right-20 z-[59] w-12 h-12 rounded-full bg-slate-900 hover:bg-slate-800 text-white shadow-xl flex items-center justify-center" title="Ask Iqra AI" aria-label="Open Iqra AI Study Assistant">{open ? <X className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}</button>
   </>;
 }
 
