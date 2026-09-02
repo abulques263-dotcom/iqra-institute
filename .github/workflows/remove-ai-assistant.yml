@@ -1,0 +1,81 @@
+name: Remove broken AI assistant
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/remove-ai-assistant.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  remove-ai:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Remove AI UI from website
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          # App.tsx: remove AI component import, floating button, component render,
+          # and stop wiring the AI launcher into the navbar/daily question widget.
+          p = Path('src/App.tsx')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace("import { AIStudyAssistant } from './components/AIStudyAssistant.js';\n", '')
+          s = s.replace("import { Phone, MessageCircle, Sparkles, X, Brain, Bot, HelpCircle } from 'lucide-react';", "import { Phone, MessageCircle, Sparkles, X, Brain, Bot, HelpCircle } from 'lucide-react';")
+          s = s.replace(" onOpenAiTutor={() => { setAiTutorInitialPrompt(undefined); setAiTutorOpen(true); }}", '')
+          s = s.replace(" onAskAiTutor={(prompt) => { setAiTutorInitialPrompt(prompt); setAiTutorOpen(true); }}", '')
+          s = s.replace("        <AIStudyAssistant isOpen={aiTutorOpen} onClose={() => { setAiTutorOpen(false); setAiTutorInitialPrompt(undefined); }} initialPrompt={aiTutorInitialPrompt} />\n", '')
+          # Remove the exact floating AI tutor button line.
+          lines = s.splitlines(True)
+          s = ''.join(line for line in lines if 'id="floating-ai-tutor-btn"' not in line)
+          p.write_text(s, encoding='utf-8')
+
+          # Navbar.tsx: remove the AI navigation item and its click handler.
+          p = Path('src/components/Navbar.tsx')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace("  { name: 'Iqra AI Tutor', href: '#ai-tutor' },\n", '')
+          s = s.replace("    if (href === '#ai-tutor') {\n      onOpenAiTutor();\n      return;\n    }\n", '')
+          p.write_text(s, encoding='utf-8')
+
+          # DailyQuestionWidget.tsx: remove the AI promotion card and Ask-AI button,
+          # leaving the normal daily-question/practice functionality intact.
+          p = Path('src/components/DailyQuestionWidget.tsx')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace("import { Brain, HelpCircle, CheckCircle, Lightbulb, Eye, EyeOff, BookOpen, Sparkles, ArrowRight, Award } from 'lucide-react';", "import { Brain, HelpCircle, CheckCircle, Lightbulb, Eye, EyeOff, BookOpen, ArrowRight, Award } from 'lucide-react';")
+          start = s.find("              {onAskAiTutor && (\n                <div className=\"pt-2 border-t border-emerald-200/60 flex items-center justify-between\">")
+          if start != -1:
+              end = s.find("              )}\n", start)
+              if end == -1:
+                  raise SystemExit('Could not locate daily-question Ask AI block end')
+              end += len("              )}\n")
+              s = s[:start] + s[end:]
+          # Remove the complete second promotional AI card using stable heading text.
+          marker = "          <div className=\"bg-gradient-to-r from-emerald-700 to-teal-800"
+          start = s.find(marker)
+          if start != -1:
+              end = s.find("          </div>\n        </div>", start)
+              if end == -1:
+                  raise SystemExit('Could not locate daily-question AI promotion card end')
+              end += len("          </div>\n")
+              s = s[:start] + s[end:]
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Verify build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/App.tsx src/components/Navbar.tsx src/components/DailyQuestionWidget.tsx
+          git diff --cached --quiet || git commit -m "Remove broken AI study assistant"
+          git push
