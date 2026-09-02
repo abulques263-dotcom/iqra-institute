@@ -5,6 +5,9 @@
   "functions": {
     "api/ai/chat.ts": {
       "maxDuration": 60
+    },
+    "api/ai/generate-questions.ts": {
+      "maxDuration": 60
     }
   }
 }
