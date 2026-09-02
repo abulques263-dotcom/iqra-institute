@@ -5,7 +5,10 @@ import { defineConfig } from 'vite';
 
 export default defineConfig(() => {
   return {
-    base: '/iqra-institute/',
+    // Vercel serves this app from the domain root.
+    // The previous '/iqra-institute/' base caused Vercel to request JS/CSS
+    // from /iqra-institute/assets/... and resulted in a blank white screen.
+    base: '/',
 
     plugins: [react(), tailwindcss()],
 
