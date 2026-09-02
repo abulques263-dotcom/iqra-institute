@@ -1,0 +1,39 @@
+name: Fix AI assistant error visibility
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/fix-ai-error-display.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Patch AI fallback
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/components/AIStudyAssistant.tsx')
+          s = p.read_text(encoding='utf-8')
+          old = """    } catch {\n      const errorMsg: ChatMessage = {\n        id: 'msg-err-' + Date.now(),\n        role: 'assistant',\n        content: `I'm happy to help you with **\\\"${text}\\\"**! 🌟\\n\\nRemember, understanding the basic concept step-by-step is always the key at IQRA INSTITUTE.\\n\\n* **Try breaking this sum into smaller parts.**\\n* **Connect it with everyday examples around you.**\\n\\nFeel free to ask another question or pick a practice quiz below! 😊`,\n        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),\n        suggestions: ['What is a noun?', 'Explain fractions', '2 + 5 kitna hota hai?']\n      };\n      setMessages(prev => [...prev, errorMsg]);\n"""
+          new = """    } catch (error) {\n      const message = error instanceof Error ? error.message : 'AI service is unavailable right now.';\n      const errorMsg: ChatMessage = {\n        id: 'msg-err-' + Date.now(),\n        role: 'assistant',\n        content: `**AI response nahi aa pa rahi.**\\n\\nTechnical error: \\`${message}\\`\\n\\nPlease try again in a few seconds.`,\n        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),\n        suggestions: ['Try again', 'Explain fractions', '2 + 5 kitna hota hai?']\n      };\n      setMessages(prev => [...prev, errorMsg]);\n"""
+          if old not in s:
+              raise SystemExit('Expected AI fallback block was not found; no changes made.')
+          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+          PY
+
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/components/AIStudyAssistant.tsx .github/workflows/fix-ai-error-display.yml
+          git diff --cached --quiet || git commit -m "Show actual AI API error instead of fallback"
+          git push
