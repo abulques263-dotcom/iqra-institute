@@ -3,9 +3,9 @@ import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// GitHub Pages is static, so AI requests must use the Vercel serverless API.
-// Vercel itself keeps using its normal same-origin /api/ai/* route.
-const VERCEL_AI_ORIGIN = 'https://iqra-institute.vercel.app';
+// GitHub Pages is static, so AI requests must use the deployed Vercel API.
+// Use the known deployment URL rather than an unverified project alias.
+const VERCEL_AI_ORIGIN = 'https://iqra-institute-8o0y58pex-abulques263-3307.vercel.app';
 const originalFetch = window.fetch.bind(window);
 
 window.fetch = ((input: RequestInfo | URL, init?: RequestInit) => {
