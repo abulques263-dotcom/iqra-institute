@@ -352,7 +352,7 @@ export const api = {
   // AI STUDY ASSISTANT & CHAT
   // ----------------------------------------------------
   async sendStudyChatMessage(payload: AIStudyChatPayload): Promise<{ reply: string; suggestions?: string[] }> {
-    const res = await fetch('/api/ai/chat', {
+    const res = await fetch('https://iqra-institute.vercel.app/api/ai/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -365,7 +365,7 @@ export const api = {
   },
 
   async explainQuestionWithAi(payload: AIExplainQuestionPayload): Promise<{ explanation: string }> {
-    const res = await fetch('/api/ai/explain-question', {
+    const res = await fetch('https://iqra-institute.vercel.app/api/ai/explain-question', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
