@@ -159,7 +159,7 @@ export const Hero: React.FC<HeroProps> = ({
                   <div className="grid grid-cols-2 gap-2">
                     <div className="p-2.5 rounded-lg bg-stone-50 border border-stone-200/80 text-center">
                       <p className="text-xs text-slate-600 font-medium">Nursery – UKG</p>
-                      <p className="text-base font-bold text-slate-900 font-['Outfit']">₹350 <span className="text-[10px] text-slate-500 font-normal">/mo</span></p>
+                      <p className="text-base font-bold text-slate-900 font-['Outfit']">₹500 <span className="text-[10px] text-slate-500 font-normal">/mo</span></p>
                     </div>
                     <div className="p-2.5 rounded-lg bg-stone-50 border border-stone-200/80 text-center">
                       <p className="text-xs text-slate-600 font-medium">Class 1 – 4</p>
