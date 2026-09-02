@@ -1,8 +1,19 @@
 const MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
 
 export default async function handler(req, res) {
+  // GitHub Pages frontend calls this Vercel function cross-origin.
+  const allowedOrigin = 'https://abulques263-dotcom.github.io';
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Vary', 'Origin');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
   if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
+    res.setHeader('Allow', 'POST, OPTIONS');
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
@@ -11,11 +22,10 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Message is required' });
   }
 
-  // Support both common Google/Gemini environment-variable names.
   const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
   if (!apiKey || apiKey === 'MY_GEMINI_API_KEY') {
     return res.status(503).json({
-      error: 'Gemini API key is missing. Add GEMINI_API_KEY to the Vercel environment variables for this deployment and redeploy.'
+      error: 'Gemini API key is missing. Add GEMINI_API_KEY to Vercel Environment Variables and redeploy.'
     });
   }
 
@@ -53,9 +63,6 @@ ${message.trim()}`;
     let lastError = null;
 
     for (const model of MODELS) {
-      // Try structured JSON first, then retry the same model without the
-      // JSON response constraint. This handles keys/models where that option
-      // is unavailable while still keeping the normal response structured.
       for (const useJsonMode of [true, false]) {
         try {
           const body = {
