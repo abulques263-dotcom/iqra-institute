@@ -1,71 +1,24 @@
-name: Remove broken AI assistant
+name: Verify AI removal
 
 on:
   workflow_dispatch:
   push:
     paths:
       - '.github/workflows/remove-ai-assistant.yml'
+      - 'src/**'
 
 permissions:
   contents: write
 
 jobs:
-  remove-ai:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Remove AI UI from website
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          p = Path('src/App.tsx')
-          s = p.read_text(encoding='utf-8')
-          s = s.replace("import { AIStudyAssistant } from './components/AIStudyAssistant.js';\n", '')
-          s = s.replace(" onOpenAiTutor={() => { setAiTutorInitialPrompt(undefined); setAiTutorOpen(true); }}", '')
-          s = s.replace(" onAskAiTutor={(prompt) => { setAiTutorInitialPrompt(prompt); setAiTutorOpen(true); }}", '')
-          s = s.replace("        <AIStudyAssistant isOpen={aiTutorOpen} onClose={() => { setAiTutorOpen(false); setAiTutorInitialPrompt(undefined); }} initialPrompt={aiTutorInitialPrompt} />\n", '')
-          lines = s.splitlines(True)
-          s = ''.join(line for line in lines if 'id="floating-ai-tutor-btn"' not in line)
-          p.write_text(s, encoding='utf-8')
-
-          p = Path('src/components/Navbar.tsx')
-          s = p.read_text(encoding='utf-8')
-          s = s.replace("  { name: 'Iqra AI Tutor', href: '#ai-tutor' },\n", '')
-          s = s.replace("    if (href === '#ai-tutor') {\n      onOpenAiTutor();\n      return;\n    }\n", '')
-          p.write_text(s, encoding='utf-8')
-
-          p = Path('src/components/DailyQuestionWidget.tsx')
-          s = p.read_text(encoding='utf-8')
-          s = s.replace("import { Brain, HelpCircle, CheckCircle, Lightbulb, Eye, EyeOff, BookOpen, Sparkles, ArrowRight, Award } from 'lucide-react';", "import { Brain, HelpCircle, CheckCircle, Lightbulb, Eye, EyeOff, BookOpen, ArrowRight, Award } from 'lucide-react';")
-          start = s.find("              {onAskAiTutor && (\n                <div className=\"pt-2 border-t border-emerald-200/60 flex items-center justify-between\">")
-          if start != -1:
-              end = s.find("              )}\n", start)
-              if end != -1:
-                  end += len("              )}\n")
-                  s = s[:start] + s[end:]
-          marker = "          <div className=\"bg-gradient-to-r from-emerald-700 to-teal-800"
-          start = s.find(marker)
-          if start != -1:
-              end = s.find("          </div>\n        </div>", start)
-              if end != -1:
-                  end += len("          </div>\n")
-                  s = s[:start] + s[end:]
-          p.write_text(s, encoding='utf-8')
-          PY
-
-      - name: Verify build
+      - name: Verify website build
         run: |
           npm install
           npm run build
-
-      - name: Commit changes
+      - name: Check for broken AI UI references
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/App.tsx src/components/Navbar.tsx src/components/DailyQuestionWidget.tsx
-          git diff --cached --quiet || git commit -m "Remove broken AI study assistant"
-          git push
+          ! grep -R "AIStudyAssistant\|Iqra AI Tutor\|#ai-tutor" src/App.tsx src/components/Navbar.tsx
