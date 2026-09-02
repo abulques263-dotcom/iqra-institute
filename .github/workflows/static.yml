@@ -31,7 +31,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build website
+      - name: Build website for GitHub Pages
+        env:
+          VITE_BASE_PATH: /iqra-institute/
         run: npm run build
 
       - name: Setup GitHub Pages
@@ -54,5 +56,3 @@ jobs:
       - name: Deploy latest build to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-# Deployment refresh after Nursery–UKG fee correction.
