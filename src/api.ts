@@ -348,6 +348,50 @@ export const api = {
     return await res.json();
   },
 
+  async generateAiQuestion(payload: {
+    subject: string;
+    targetClass: string;
+    topic?: string;
+    difficulty?: QuestionBankItem['difficulty'];
+  }): Promise<QuestionBankItem> {
+    const res = await fetch('/api/ai/generate-question', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        studentClass: payload.targetClass,
+        subject: payload.subject,
+        topic: payload.topic,
+        difficulty: payload.difficulty || 'Medium'
+      })
+    });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error(error.error || 'Failed to generate AI question');
+    }
+    const data = await res.json();
+    return data.generated;
+  },
+
+  async generateAiQuestionBatch(payload: {
+    studentClass: string;
+    subject: string;
+    topic?: string;
+    difficulty: QuestionBankItem['difficulty'];
+    count: number;
+  }): Promise<QuestionBankItem[]> {
+    const res = await fetch('/api/ai/generate-batch', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error(error.error || 'Failed to generate AI question batch');
+    }
+    const data = await res.json();
+    return data.questions || [];
+  },
+
   // News Updates
   async getNews(): Promise<NewsUpdate[]> {
     const res = await fetch('/api/news');

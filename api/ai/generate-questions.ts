@@ -8,7 +8,7 @@ function sendJson(res: any, status: number, body: unknown) {
 }
 
 function getApiKey() {
-  return process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.API_KEY || '';
+  return process.env.GEMINI_API_KEY?.trim() || '';
 }
 
 export default async function handler(req: any, res: any) {
@@ -67,7 +67,7 @@ Rules:
 {"questions":[{"question":"...","options":["...","...","...","..."],"correctAnswer":0,"explanation":"...","topic":"...","difficulty":"${difficulty}"}]}`;
 
     const response = await gemini.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.6-flash',
       contents: prompt,
       config: { responseMimeType: 'application/json' }
     });

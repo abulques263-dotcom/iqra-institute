@@ -11,7 +11,7 @@ function sendJson(res: any, status: number, body: unknown) {
 }
 
 function getApiKey() {
-  return process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.API_KEY || '';
+  return process.env.GEMINI_API_KEY?.trim() || '';
 }
 
 export default async function handler(req: any, res: any) {
@@ -34,8 +34,11 @@ export default async function handler(req: any, res: any) {
 
   const { message, history, studentClass, subject } = body;
 
-  if (!message || typeof message !== 'string') {
+  if (!message || typeof message !== 'string' || !message.trim()) {
     return sendJson(res, 400, { error: 'Message is required' });
+  }
+  if (message.length > 2_000) {
+    return sendJson(res, 400, { error: 'Please keep your question under 2,000 characters.' });
   }
 
   const apiKey = getApiKey();
@@ -50,7 +53,7 @@ export default async function handler(req: any, res: any) {
     const gemini = new GoogleGenAI({ apiKey });
     const formattedHistory = Array.isArray(history)
       ? history.slice(-6)
-          .map((h: any) => `${h?.role === 'user' ? 'Student' : 'Tutor'}: ${String(h?.content ?? '')}`)
+          .map((h: any) => `${h?.role === 'user' ? 'Student' : 'Tutor'}: ${String(h?.content ?? '').slice(0, 1_000)}`)
           .join('\n')
       : '';
 
@@ -77,7 +80,7 @@ ${message}
 Return only JSON.`;
 
     const response = await gemini.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.6-flash',
       contents: prompt,
       config: { responseMimeType: 'application/json' }
     });
@@ -91,9 +94,9 @@ Return only JSON.`;
 
     return sendJson(res, 200, {
       success: true,
-      reply: parsed.reply || response.text || 'Sorry, answer generate nahi ho paya.',
+      reply: typeof parsed.reply === 'string' && parsed.reply.trim() ? parsed.reply.trim() : response.text || 'Sorry, answer generate nahi ho paya.',
       suggestions: Array.isArray(parsed.suggestions) && parsed.suggestions.length
-        ? parsed.suggestions.slice(0, 3)
+        ? parsed.suggestions.filter((item: unknown) => typeof item === 'string' && item.trim()).slice(0, 3)
         : fallbackSuggestions,
       isAiGenerated: true
     });

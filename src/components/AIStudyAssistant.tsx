@@ -9,29 +9,23 @@ const starterSuggestions = [
   'Photosynthesis easy words me samjhao'
 ];
 
-function offlineAnswer(text: string) {
-  const q = text.toLowerCase();
-  if (q.includes('fraction') || q.includes('fractions')) return 'Fraction kisi whole cheez ke part ko show karta hai. Jaise pizza ko 4 equal slices me kaato aur 1 slice lo, to 1/4 hoga. Upar wala number numerator aur neeche wala denominator hota hai. Check: 2/4 ko simplest form me kaise likhenge?';
-  if (q.includes('photosynthesis')) return 'Photosynthesis me green plants sunlight ki help se carbon dioxide aur water se food banate hain. Is process me oxygen bhi release hoti hai. Check: plants photosynthesis ke liye sunlight ke saath kaunsi gas use karte hain?';
-  if (q.includes('multiplication') || q.includes('multiply')) return 'Multiplication ko repeated addition samajh sakte ho. 4 × 3 ka matlab 4 ko 3 baar add karna, yani 4 + 4 + 4 = 12. Check: 6 × 5 kitna hoga?';
-  if (q.includes('division') || q.includes('divide')) return 'Division ka matlab kisi quantity ko equal groups me baantna. 12 ÷ 3 ka matlab 12 ko 3 equal groups me baanto, har group me 4 aayega. Check: 20 ÷ 5 kitna hai?';
-  return 'AI connection abhi available nahi hai, lekin main basic study help yahin de sakta hoon. Maths, Science, English ya reasoning ka topic likho. Practice ke liye Question Arena bhi use kar sakte ho.';
-}
-
 export function AIStudyAssistant() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [suggestions, setSuggestions] = useState(starterSuggestions);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [failedMessage, setFailedMessage] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, loading]);
 
-  const sendMessage = async (value?: string) => {
+  const sendMessage = async (value?: string, retry = false) => {
     const message = (value ?? input).trim();
     if (!message || loading) return;
-    const nextMessages = [...messages, { role: 'user' as const, content: message }];
+    setErrorMessage('');
+    const nextMessages = retry ? messages : [...messages, { role: 'user' as const, content: message }];
     setMessages(nextMessages); setInput(''); setLoading(true);
     try {
       const response = await fetch('/api/ai/chat', {
@@ -45,8 +39,8 @@ export function AIStudyAssistant() {
       if (Array.isArray(data.suggestions) && data.suggestions.length) setSuggestions(data.suggestions.slice(0, 3));
     } catch (error) {
       console.error('AI assistant error:', error);
-      setMessages([...nextMessages, { role: 'assistant', content: offlineAnswer(message) }]);
-      setSuggestions(['Ek Maths question do', 'Science ka concept samjhao', 'Reasoning practice do']);
+      setFailedMessage(message);
+      setErrorMessage(error instanceof Error ? error.message : 'AI answer could not be generated. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -59,9 +53,10 @@ export function AIStudyAssistant() {
         <button onClick={() => setOpen(false)} className="p-2 rounded-xl hover:bg-white/10" aria-label="Close AI assistant"><X className="w-5 h-5" /></button>
       </div>
       <div className="flex-1 overflow-y-auto p-4 bg-stone-50 space-y-3">
-        {messages.length === 0 && <div className="bg-white rounded-2xl border border-stone-200 p-4 shadow-sm"><div className="font-bold text-slate-900 mb-1">AI Study Help</div><p className="text-sm text-slate-600 leading-6">Maths, Science, English aur Reasoning ke doubts poochho. AI available hoga to Gemini answer dega; connection fail hua to basic offline help continue rahegi.</p></div>}
+        {messages.length === 0 && <div className="bg-white rounded-2xl border border-stone-200 p-4 shadow-sm"><div className="font-bold text-slate-900 mb-1">AI Study Help</div><p className="text-sm text-slate-600 leading-6">Maths, Science, English aur Reasoning ke doubts poochho. Gemini aapko step-by-step, class-appropriate answers dega.</p></div>}
         {messages.map((message, index) => <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[88%] rounded-2xl px-4 py-3 text-sm leading-6 whitespace-pre-wrap ${message.role === 'user' ? 'bg-slate-900 text-white rounded-br-md' : 'bg-white text-slate-700 border border-stone-200 rounded-bl-md shadow-sm'}`}>{message.content}</div></div>)}
         {loading && <div className="flex justify-start"><div className="bg-white border border-stone-200 rounded-2xl rounded-bl-md px-4 py-3 text-slate-500 flex items-center gap-2 text-sm"><Loader2 className="w-4 h-4 animate-spin" /> Answer prepare ho raha hai...</div></div>}
+        {errorMessage && <div role="alert" className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800"><p>{errorMessage}</p><button type="button" onClick={() => sendMessage(failedMessage, true)} disabled={!failedMessage || loading} className="mt-2 rounded-lg bg-rose-700 px-3 py-1.5 text-xs font-bold text-white disabled:opacity-50">Try again</button></div>}
         <div ref={bottomRef} />
       </div>
       <div className="px-3 pt-3 bg-white border-t border-stone-200 shrink-0">

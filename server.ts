@@ -1,4 +1,5 @@
 import express from 'express';
+import 'dotenv/config';
 import path from 'path';
 import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
@@ -98,7 +99,6 @@ function loadDatabase() {
         ...loaded,
         // Ensure defaults if any array is empty
         settings: { ...initialSettings, ...(loaded.settings || {}) },
-        classes: loaded.classes?.length ? loaded.classes : initialClasses,
         // Current fee update: Nursery–UKG is ₹500/month.
         classes: (loaded.classes?.length ? loaded.classes : initialClasses).map((c: ClassFeeItem) => c.id === 'cls-nursery-ukg' ? { ...c, monthlyFee: 500 } : c),
         teachers: loaded.teachers?.length ? loaded.teachers : initialTeachers,
@@ -325,7 +325,7 @@ function buildPersonalizedEmailHtml(options: {
 
 // Lazy initialize Gemini client
 function getGeminiClient(): GoogleGenAI | null {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey) {
     return null;
   }
@@ -1451,7 +1451,7 @@ Respond ONLY with valid JSON:
 }`;
 
       const response = await gemini.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.6-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json'
@@ -1501,51 +1501,21 @@ Respond ONLY with valid JSON:
   app.post('/api/ai/chat', async (req, res) => {
     const { message, history, studentClass, subject } = req.body;
 
-    if (!message || typeof message !== 'string') {
+    if (!message || typeof message !== 'string' || !message.trim()) {
       return res.status(400).json({ error: 'Message is required' });
+    }
+    if (message.length > 2_000) {
+      return res.status(400).json({ error: 'Please keep your question under 2,000 characters.' });
     }
 
     const gemini = getGeminiClient();
 
-    // Fallback response engine if GEMINI_API_KEY is not configured
+    // Never present a canned answer as AI-generated: the client can clearly
+    // tell the learner how to enable the real assistant instead.
     if (!gemini) {
-      const lower = message.toLowerCase();
-      let reply = '';
-      let suggestions = [
-        'Give me 3 practice questions',
-        'Explain this in simpler words',
-        'Give a real-life example'
-      ];
-
-      if (lower.includes('noun') || lower.includes('what is a noun')) {
-        reply = `**What is a Noun?** 🌟\n\nA **noun** is simply the name of a **person, place, animal, or thing**!\n\nThink of it as a *naming word*. Whenever you name something in your room or school, it's a noun!\n\n**Examples:**\n* **Person:** Rahul, Teacher, Doctor, Ammi, Abbu 👨‍👩‍👧\n* **Place:** Noida, Delhi, School, Park 🏫\n* **Animal:** Cat, Elephant, Sparrow 🐘\n* **Thing:** Book, Pencil, Cricket Bat, Mango 📚🥭\n\n**Quick Practice for you:** In the sentence *"Ayaan is reading a storybook in Noida"*, can you spot the 3 nouns? 😊`;
-        suggestions = ['Identify nouns in a sentence', 'What are Proper and Common Nouns?', 'Quiz me on English grammar'];
-      } else if (lower.includes('photosynthesis') || lower.includes('plant food')) {
-        reply = `**What is Photosynthesis?** 🌱☀️\n\nJust like your mom prepares tasty meals in the kitchen, **plants also prepare their own food** through a process called **Photosynthesis**!\n\n**What does a green plant need?**\n1. ☀️ **Sunlight** (absorbed by green leaves using *Chlorophyll*)\n2. 💧 **Water & Minerals** (absorbed from soil by *Roots*)\n3. 🌬️ **Carbon Dioxide** (taken from the air through tiny leaf pores called *Stomata*)\n\n**What is produced?**\n* 🍬 **Glucose** (food/energy for the plant)\n* 🌿 **Oxygen** (fresh air released for all of us to breathe!)\n\n**Remember:** *Photo* = Light, *Synthesis* = Putting together! ✨`;
-        suggestions = ['What is Chlorophyll?', 'Why are leaves green?', 'Give me 3 Science questions'];
-      } else if (lower.includes('fraction') || lower.includes('fractions')) {
-        reply = `**Understanding Fractions in 1 Minute!** 🍕\n\nA **fraction** simply represents **part of a whole thing** that is divided into equal slices!\n\n**Imagine this:**\nYou order a pizza cut into **4 equal slices**.\n* If you eat **1 slice**, you have eaten **1 out of 4 slices** = **1/4** (One-fourth)!\n* If you share **2 slices** with your best friend, you shared **2/4** = **1/2** (Half the pizza)!\n\n**Two Main Parts:**\n* 🔺 **Numerator (Top number):** How many parts you have.\n* 🔻 **Denominator (Bottom number):** Total number of equal parts in the whole.\n\n**Quick Question:** If an apple is sliced into 6 pieces and you eat 3 pieces, what fraction did you eat? 🍎`;
-        suggestions = ['What are Proper and Improper Fractions?', 'How to add fractions with same denominator?', 'Give me 5 Maths questions for Class 4'];
-      } else if (lower.includes('2 + 5') || lower.includes('2+5') || lower.includes('kitna hota hai') || lower.includes('what is 2 + 5')) {
-        reply = `**2 + 5 = 7!** 🎉\n\n**Let's count together:**\nIf you have **2 mangoes** 🥭🥭 and your friend gives you **5 more mangoes** 🥭🥭🥭🥭🥭...\nCounting all together: 1, 2... 3, 4, 5, 6, 7! You have **7 mangoes** in total! 🌟`;
-        suggestions = ['What is 15 - 7?', 'Give me simple addition sums', 'Practice table of 7'];
-      } else if (lower.includes('math') || lower.includes('maths question') || lower.includes('questions for class')) {
-        reply = `Here are 3 fun practice questions for you! 📝\n\n**Q1.** What is $45 + 55$?\n**Q2.** If a pencil costs ₹5, how much will 6 pencils cost?\n**Q3.** What is the perimeter of a square with side length 4 cm?\n\n*Try solving them and reply with your answers! I will check them for you!* 😊`;
-        suggestions = ['Check my answers', 'Give me Science questions instead', 'Explain question 3'];
-      } else {
-        reply = `Hello student! 🌟 I am your **Iqra AI Study Assistant**.\n\nYou asked: *"${message}"*\n\nAt IQRA INSTITUTE, our motto is **understanding concepts step-by-step with real examples**! \n\n* **For Mathematics:** Always break the problem into simple numbers.\n* **For Science:** Connect the concept to what you see around you in nature.\n* **For English:** Read the sentence aloud to check if it sounds natural.\n\nWhat subject or specific topic would you like to explore or practice next? (Maths, Science, English, or General Knowledge?) 😊`;
-        suggestions = [
-          'Give me 5 practice questions for my class',
-          'Explain fractions with examples',
-          'Quiz me on Science'
-        ];
-      }
-
-      return res.json({
-        success: true,
-        reply,
-        suggestions,
-        isAiGenerated: true
+      return res.status(503).json({
+        error: 'AI study assistant is not configured yet. Please ask the site administrator to add GEMINI_API_KEY.',
+        errorType: 'GEMINI_NOT_CONFIGURED'
       });
     }
 
@@ -1574,7 +1544,7 @@ Format your output as JSON:
 
       // Build conversation context
       const formattedHistory = Array.isArray(history)
-        ? history.slice(-6).map((h: any) => `${h.role === 'user' ? 'Student' : 'Tutor'}: ${h.content}`).join('\n')
+        ? history.slice(-6).map((h: any) => `${h?.role === 'user' ? 'Student' : 'Tutor'}: ${String(h?.content || '').slice(0, 1_000)}`).join('\n')
         : '';
 
       const prompt = `${systemInstruction}
@@ -1592,7 +1562,7 @@ Current Student Query:
 Respond strictly with valid JSON:`;
 
       const response = await gemini.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.6-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json'
@@ -1604,8 +1574,8 @@ Respond strictly with valid JSON:`;
 
       return res.json({
         success: true,
-        reply: parsed.reply || 'Great question! Let me explain this step by step...',
-        suggestions: Array.isArray(parsed.suggestions) ? parsed.suggestions : [
+        reply: typeof parsed.reply === 'string' && parsed.reply.trim() ? parsed.reply.trim() : 'Great question! Let me explain this step by step...',
+        suggestions: Array.isArray(parsed.suggestions) ? parsed.suggestions.filter((item: unknown) => typeof item === 'string' && item.trim()).slice(0, 3) : [
           'Give me a practice question on this',
           'Explain with another example',
           'Test my knowledge'
@@ -1614,8 +1584,10 @@ Respond strictly with valid JSON:`;
       });
     } catch (err: any) {
       console.error('AI Chatbot error:', err);
-      return res.status(500).json({
-        error: 'Failed to generate study assistant response: ' + (err.message || 'Unknown error')
+      const details = String(err?.message || '').toLowerCase();
+      return res.status(details.includes('api key') || details.includes('permission') ? 401 : details.includes('quota') || details.includes('rate limit') ? 429 : 502).json({
+        error: 'AI response could not be generated. Please try again shortly.',
+        errorType: details.includes('api key') || details.includes('permission') ? 'GEMINI_AUTH_ERROR' : details.includes('quota') || details.includes('rate limit') ? 'GEMINI_QUOTA_ERROR' : 'GEMINI_REQUEST_ERROR'
       });
     }
   });
@@ -1677,7 +1649,7 @@ Format output as JSON:
 }`;
 
       const response = await gemini.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.6-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json'
@@ -1759,7 +1731,7 @@ Respond strictly with valid JSON:
 }`;
 
       const response = await gemini.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.6-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json'
@@ -1881,7 +1853,7 @@ Respond ONLY with valid JSON in this exact structure:
 }`;
 
       const response = await gemini.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3.6-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json'
